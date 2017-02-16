@@ -31,6 +31,7 @@
     "hapi-auth-cookie": "7.x.x",
     "hapi-mongo-models": "6.x.x",
     "hapi-react-views": "9.x.x",
+    "hapi-sequelize": "^3.0.4",
     "hoek": "4.x.x",
     "inert": "4.x.x",
     "joi": "10.x.x",
@@ -39,9 +40,12 @@
     "nodemailer": "4.x.x",
     "nodemailer-markdown": "1.x.x",
     "object-assign": "4.x.x",
+    "pg": "^6.1.2",
+    "pg-hstore": "^2.3.2",
     "react": "15.x.x",
     "react-helmet": "5.x.x",
     "redux": "3.x.x",
+    "sequelize": "^3.28.0",
     "slug": "0.9.x",
     "uuid": "3.x.x",
     "vision": "4.x.x",
@@ -83,6 +87,7 @@
     "react-router-dom": "4.x.x",
     "require-dir": "0.3.x",
     "webpack": "3.x.x",
+    "sequelize-mock": "^0.7.0",
     "xhr": "2.x.x"
   }
 }

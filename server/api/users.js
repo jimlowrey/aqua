@@ -2,7 +2,6 @@
 const AuthPlugin = require('../auth');
 const Async = require('async');
 const Boom = require('boom');
-const EscapeRegExp = require('escape-string-regexp');
 const Joi = require('joi');
 
 
@@ -10,11 +9,6 @@ const internals = {};
 
 
 internals.applyRoutes = function (server, next) {
-
-    const User = server.plugins['hapi-mongo-models'].User;
-    const Admin = server.plugins['hapi-mongo-models'].Admin;
-    const Account = server.plugins['hapi-mongo-models'].Account;
-
 
     server.route({
         method: 'GET',
@@ -29,44 +23,61 @@ internals.applyRoutes = function (server, next) {
                     username: Joi.string().allow(''),
                     isActive: Joi.string().allow(''),
                     role: Joi.string().allow(''),
-                    fields: Joi.string(),
-                    sort: Joi.string().default('_id'),
+                    //fields: Joi.string(),
+                    sort: Joi.string().default('id'),
                     limit: Joi.number().default(20),
                     page: Joi.number().default(1)
                 }
             },
             pre: [
-                AuthPlugin.preware.ensureAdminGroup('root')
+                AuthPlugin.preware.ensureAdminGroup('Root')//capitalized for the name.
+                                                           //This is a specific group perhaps is should be addressed by Id?
             ]
         },
         handler: function (request, reply) {
 
             const query = {};
+            let isAdmin = false;
+            let isAccount = false;
             if (request.query.username) {
-                query.username = new RegExp('^.*?' + EscapeRegExp(request.query.username) + '.*$', 'i');
+                query.username = { $like:  '%' + request.query.username + '%' };
             }
             if (request.query.isActive) {
                 query.isActive = request.query.isActive === 'true';
             }
             if (request.query.role) {
-                query['roles.' + request.query.role] = { $exists: true };
-            }
-            const fields = request.query.fields;
-            const sort = request.query.sort;
-            const limit = request.query.limit;
-            const page = request.query.page;
-
-            User.pagedFind(query, fields, sort, limit, page, (err, results) => {
-
-                if (err) {
-                    return reply(err);
+                if ( request.query.role === 'admin'){
+                    isAdmin = true;
                 }
+                if ( request.query.role === 'account'){
+                    isAccount = true;
+                }
+            }
+            //const fields = request.query.fields;
+            let sort = request.query.sort;
+            let order = '';
+            if (sort !== ''){
+                let dir = 'ASC';
+                if ( sort.indexOf('-') === 0 ){
+                    dir = 'DESC';
+                    sort = sort.substring(1);
+                }
+                order = [[sort, dir]];
 
-                reply(results);
-            });
+            }
+
+            const User = request.getDb('aqua').getModel('User');
+            User.pagedFind(request.getDb('aqua').getModels(), query, request.query.page, request.query.limit, order, isAdmin, isAccount,
+                 (err, data) => {
+
+                     if ( err ){
+                         return reply(err);
+                     }
+                     reply(data);
+
+                 });
         }
     });
-
 
     server.route({
         method: 'GET',
@@ -77,22 +88,31 @@ internals.applyRoutes = function (server, next) {
                 scope: 'admin'
             },
             pre: [
-                AuthPlugin.preware.ensureAdminGroup('root')
+                AuthPlugin.preware.ensureAdminGroup('Root')
             ]
         },
         handler: function (request, reply) {
 
-            User.findById(request.params.id, (err, user) => {
-
-                if (err) {
-                    return reply(err);
+            const User = request.getDb('aqua').getModel('User');
+            User.findOne(
+                {
+                    where : { id:request.params.id },
+                    raw: true,
+                    attributes : {
+                        exclude: 'password_hash'
+                    }
                 }
 
-                if (!user) {
-                    return reply(Boom.notFound('Document not found.'));
-                }
+            ).then((user) => {
 
+                if (!user){
+                    return reply(Boom.notFound('User not found.'));
+                }
                 reply(user);
+
+            }, (err) => {
+
+                return reply(err);
             });
         }
     });
@@ -109,20 +129,30 @@ internals.applyRoutes = function (server, next) {
         },
         handler: function (request, reply) {
 
-            const id = request.auth.credentials.user._id.toString();
-            const fields = User.fieldsAdapter('username email roles');
+            const id = request.auth.credentials.user.id.toString();
+            //const fields = User.fieldsAdapter('username email roles');
 
-            User.findById(id, fields, (err, user) => {
-
-                if (err) {
-                    return reply(err);
+            const User = request.getDb('aqua').getModel('User');
+            //don't I have the user already?
+            User.find(
+                {
+                    where : { id },
+                    raw: true,
+                    attributes : {
+                        exclude: 'password_hash'
+                    }
                 }
 
-                if (!user) {
-                    return reply(Boom.notFound('Document not found. That is strange.'));
+            ).then((user) => {
+                //console.log(data);
+                if (!user){
+                    return reply(Boom.notFound('User not found.'));
                 }
-
                 reply(user);
+
+            }, (err) => {
+
+                return reply(err);
             });
         }
     });
@@ -144,47 +174,50 @@ internals.applyRoutes = function (server, next) {
                 }
             },
             pre: [
-                AuthPlugin.preware.ensureAdminGroup('root'),
+                AuthPlugin.preware.ensureAdminGroup('Root'),
                 {
                     assign: 'usernameCheck',
                     method: function (request, reply) {
 
+                        const User = request.getDb('aqua').getModel('User');
                         const conditions = {
                             username: request.payload.username
                         };
 
-                        User.findOne(conditions, (err, user) => {
+                        User.findOne({
+                            where: conditions
+                        }).then( (user) => {
 
-                            if (err) {
-                                return reply(err);
-                            }
-
-                            if (user) {
+                            if ( user ){
                                 return reply(Boom.conflict('Username already in use.'));
                             }
-
                             reply(true);
+                        }, (err) => {
+
+                            reply(err);
                         });
                     }
-                }, {
+                },
+                {
                     assign: 'emailCheck',
                     method: function (request, reply) {
 
+                        const User = request.getDb('aqua').getModel('User');
                         const conditions = {
                             email: request.payload.email
                         };
 
-                        User.findOne(conditions, (err, user) => {
+                        User.findOne({
+                            where : conditions
+                        }).then( (user) => {
 
-                            if (err) {
-                                return reply(err);
-                            }
-
-                            if (user) {
+                            if ( user ){
                                 return reply(Boom.conflict('Email already in use.'));
                             }
-
                             reply(true);
+                        }, (err) => {
+
+                            reply(err);
                         });
                     }
                 }
@@ -192,18 +225,20 @@ internals.applyRoutes = function (server, next) {
         },
         handler: function (request, reply) {
 
-            const username = request.payload.username;
-            const password = request.payload.password;
-            const email = request.payload.email;
-
-            User.create(username, password, email, (err, user) => {
-
-                if (err) {
-                    return reply(err);
-                }
+            const User = request.getDb('aqua').getModel('User');
+            User.create({
+                username : request.payload.username,
+                isActive: true,
+                password : request.payload.password,
+                email : request.payload.email
+            }).then( (user) => {
 
                 reply(user);
+            }, (err) => {
+
+                reply(err);
             });
+
         }
     });
 
@@ -227,27 +262,30 @@ internals.applyRoutes = function (server, next) {
                 }
             },
             pre: [
-                AuthPlugin.preware.ensureAdminGroup('root'),
+                AuthPlugin.preware.ensureAdminGroup('Root'),
                 {
                     assign: 'usernameCheck',
                     method: function (request, reply) {
 
                         const conditions = {
                             username: request.payload.username,
-                            _id: { $ne: User._idClass(request.params.id) }
+                            id: { $ne: request.params.id }
                         };
-
-                        User.findOne(conditions, (err, user) => {
-
-                            if (err) {
-                                return reply(err);
+                        const User = request.getDb('aqua').getModel('User');
+                        User.findOne(
+                            {
+                                where : conditions
                             }
+                        ).then((user) => {
 
-                            if (user) {
+                            if (user){
                                 return reply(Boom.conflict('Username already in use.'));
                             }
-
                             reply(true);
+
+                        }, (err) => {
+
+                            return reply(err);
                         });
                     }
                 }, {
@@ -256,20 +294,23 @@ internals.applyRoutes = function (server, next) {
 
                         const conditions = {
                             email: request.payload.email,
-                            _id: { $ne: User._idClass(request.params.id) }
+                            id: { $ne: request.params.id }
                         };
-
-                        User.findOne(conditions, (err, user) => {
-
-                            if (err) {
-                                return reply(err);
+                        const User = request.getDb('aqua').getModel('User');
+                        User.findOne(
+                            {
+                                where : conditions
                             }
+                        ).then((user) => {
 
-                            if (user) {
+                            if (user){
                                 return reply(Boom.conflict('Email already in use.'));
                             }
-
                             reply(true);
+
+                        }, (err) => {
+
+                            return reply(err);
                         });
                     }
                 }
@@ -277,53 +318,30 @@ internals.applyRoutes = function (server, next) {
         },
         handler: function (request, reply) {
 
-            const id = request.params.id;
-            const update = {
-                $set: {
+            const User = request.getDb('aqua').getModel('User');
+            User.update(
+                {
                     isActive: request.payload.isActive,
                     username: request.payload.username,
                     email: request.payload.email
-                }
-            };
-
-            const filterById = {
-                'user.id': request.params.id
-            };
-
-            const updateReference = {
-                $set: {
-                    'user.name': request.payload.username
-                }
-            };
-
-            Async.auto({
-                user: function (done) {
-
-                    User.findByIdAndUpdate(id, update, done);
                 },
-                account: function (done) {
-
-                    Account.findOneAndUpdate(filterById, updateReference, done);
-                },
-                admin: function (done) {
-
-                    Admin.findOneAndUpdate(filterById, updateReference, done);
+                {
+                    where : { id : request.params.id }
                 }
-            }, (err, results) => {
+                ).then((user) => {
 
-                if (err) {
+                    if (!user) {
+                        return reply(Boom.notFound('Document not found.'));
+                    }
+
+                    reply(user);
+
+                }, (err) => {
+
                     return reply(err);
-                }
-
-                if (!results.user) {
-                    return reply(Boom.notFound('Document not found.'));
-                }
-
-                reply(results.user);
-            });
+                });
         }
     });
-
 
     server.route({
         method: 'PUT',
@@ -349,18 +367,21 @@ internals.applyRoutes = function (server, next) {
                             username: request.payload.username,
                             _id: { $ne: request.auth.credentials.user._id }
                         };
-
-                        User.findOne(conditions, (err, user) => {
-
-                            if (err) {
-                                return reply(err);
+                        const User = request.getDb('aqua').getModel('User');
+                        User.findOne(
+                            {
+                                where : conditions
                             }
+                        ).then((user) => {
 
-                            if (user) {
+                            if (user){
                                 return reply(Boom.conflict('Username already in use.'));
                             }
-
                             reply(true);
+
+                        }, (err) => {
+
+                            return reply(err);
                         });
                     }
                 }, {
@@ -371,18 +392,20 @@ internals.applyRoutes = function (server, next) {
                             email: request.payload.email,
                             _id: { $ne: request.auth.credentials.user._id }
                         };
-
-                        User.findOne(conditions, (err, user) => {
-
-                            if (err) {
-                                return reply(err);
+                        User.findOne(
+                            {
+                                where : conditions
                             }
+                        ).then((user) => {
 
-                            if (user) {
+                            if (user){
                                 return reply(Boom.conflict('Email already in use.'));
                             }
-
                             reply(true);
+
+                        }, (err) => {
+
+                            return reply(err);
                         });
                     }
                 }
@@ -391,50 +414,29 @@ internals.applyRoutes = function (server, next) {
         handler: function (request, reply) {
 
             const id = request.auth.credentials.user._id.toString();
-            const update = {
-                $set: {
+            User.update(
+                {
+                    isActive: request.payload.isActive,
                     username: request.payload.username,
                     email: request.payload.email
-                }
-            };
-            const findOptions = {
-                fields: User.fieldsAdapter('username email roles')
-            };
-
-            const filterById = {
-                'user.id': id
-            };
-
-            const updateReference = {
-                $set: {
-                    'user.name': request.payload.username
-                }
-            };
-
-            Async.auto({
-                user: function (done) {
-
-                    User.findByIdAndUpdate(id, update, findOptions, done);
                 },
-                account: function (done) {
-
-                    Account.findOneAndUpdate(filterById, updateReference, done);
-                },
-                admin: function (done) {
-
-                    Admin.findOneAndUpdate(filterById, updateReference, done);
+                {
+                    where : { id }
                 }
-            }, (err, results) => {
+                ).then((user) => {
 
-                if (err) {
+                    if (!user) {
+                        return reply(Boom.notFound('Document not found.'));
+                    }
+
+                    reply(user);
+
+                }, (err) => {
+
                     return reply(err);
-                }
-
-                reply(results.user);
-            });
+                });
         }
     });
-
 
     server.route({
         method: 'PUT',
@@ -453,43 +455,35 @@ internals.applyRoutes = function (server, next) {
                 }
             },
             pre: [
-                AuthPlugin.preware.ensureAdminGroup('root'),
-                {
-                    assign: 'password',
-                    method: function (request, reply) {
-
-                        User.generatePasswordHash(request.payload.password, (err, hash) => {
-
-                            if (err) {
-                                return reply(err);
-                            }
-
-                            reply(hash);
-                        });
-                    }
-                }
+                AuthPlugin.preware.ensureAdminGroup('Root')
             ]
         },
         handler: function (request, reply) {
 
-            const id = request.params.id;
-            const update = {
-                $set: {
-                    password: request.pre.password.hash
+            const SqlUser = request.getDb('aqua').getModel('User');
+            SqlUser.update(
+                {
+                    password: request.payload.password
+                },
+                {
+                    where : { id : request.params.id },
+                    individualHooks:true
                 }
-            };
+                ).then((result) => {
 
-            User.findByIdAndUpdate(id, update, (err, user) => {
+                    if (result[0] !== 1) {
+                        return reply(Boom.notFound('User not found.'));
+                    }
 
-                if (err) {
+                    //todo should anything be passed back?
+                    reply({});
+
+                }, (err) => {
+
                     return reply(err);
-                }
-
-                reply(user);
-            });
+                });
         }
     });
-
 
     server.route({
         method: 'PUT',
@@ -505,43 +499,33 @@ internals.applyRoutes = function (server, next) {
                 }
             },
             pre: [
-                AuthPlugin.preware.ensureNotRoot,
-                {
-                    assign: 'password',
-                    method: function (request, reply) {
-
-                        User.generatePasswordHash(request.payload.password, (err, hash) => {
-
-                            if (err) {
-                                return reply(err);
-                            }
-
-                            reply(hash);
-                        });
-                    }
-                }
+                AuthPlugin.preware.ensureNotRoot
             ]
         },
         handler: function (request, reply) {
 
-            const id = request.auth.credentials.user._id.toString();
-            const update = {
-                $set: {
-                    password: request.pre.password.hash
+            const User = request.getDb('aqua').getModel('User');
+            User.update(
+                {
+                    password: request.payload.password
+                },
+                {
+                    where : { id : request.params.id },
+                    individualHooks:true
                 }
-            };
-            const findOptions = {
-                fields: User.fieldsAdapter('username email')
-            };
+                ).then((result) => {
 
-            User.findByIdAndUpdate(id, update, findOptions, (err, user) => {
+                    if (result[0] !== 1) {
+                        return reply(Boom.notFound('User not found.'));
+                    }
 
-                if (err) {
+                    reply({});
+
+                }, (err) => {
+
                     return reply(err);
-                }
+                });
 
-                reply(user);
-            });
         }
     });
 
@@ -560,18 +544,19 @@ internals.applyRoutes = function (server, next) {
                 }
             },
             pre: [
-                AuthPlugin.preware.ensureAdminGroup('root')
+                AuthPlugin.preware.ensureAdminGroup('Root')
             ]
         },
         handler: function (request, reply) {
 
-            User.findByIdAndDelete(request.params.id, (err, user) => {
-
-                if (err) {
-                    return reply(err);
+            const User = request.getDb('aqua').getModel('User');
+            User.destroy({
+                where: {
+                    id : request.params.id
                 }
+            }).then((count) => {
 
-                if (!user) {
+                if (count !== 1){
                     return reply(Boom.notFound('Document not found.'));
                 }
 
@@ -587,12 +572,12 @@ internals.applyRoutes = function (server, next) {
 
 exports.register = function (server, options, next) {
 
-    server.dependency(['auth', 'hapi-mongo-models'], internals.applyRoutes);
+    server.dependency(['auth', 'hapi-sequelize', 'dbconfig'], internals.applyRoutes);
 
     next();
 };
 
 
 exports.register.attributes = {
-    name: 'users'
+    name: 'sqlusers'
 };

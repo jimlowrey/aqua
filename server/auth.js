@@ -9,9 +9,6 @@ const internals = {};
 
 internals.applyStrategy = function (server, next) {
 
-    const Session = server.plugins['hapi-mongo-models'].Session;
-    const User = server.plugins['hapi-mongo-models'].User;
-
     server.auth.strategy('session', 'cookie', {
         password: Config.get('/cookieSecret'),
         cookie: 'sid-aqua',
@@ -20,12 +17,18 @@ internals.applyStrategy = function (server, next) {
         appendNext: 'returnUrl',
         validateFunc: function (request, data, callback) {
 
+            const Session = request.getDb('aqua').getModel('Session');
+            const User = request.getDb('aqua').getModel('User');
+
             Async.auto({
                 session: function (done) {
 
-                    const id = data.session._id;
+                    //const id = data.session._id;
+                    const id = data.session.id;
                     const key = data.session.key;
-
+                    if ( id.indexOf('-') < 0){
+                        done();
+                    }
                     Session.findByCredentials(id, key, done);
                 },
                 user: ['session', function (results, done) {
@@ -34,7 +37,16 @@ internals.applyStrategy = function (server, next) {
                         return done();
                     }
 
-                    User.findById(results.session.userId, done);
+                    User.findById(results.session.userId).then(
+                        (user) => {
+
+                            done(null, user);
+                        },
+                        (err) => {
+
+                            done(err);
+                        }
+                    );
                 }],
                 roles: ['user', function (results, done) {
 
@@ -42,9 +54,9 @@ internals.applyStrategy = function (server, next) {
                         return done();
                     }
 
-                    results.user.hydrateRoles(done);
+                    results.user.hydrateRoles(request.getDb('aqua'),done);
                 }],
-                scope: ['user', function (results, done) {
+                scope: ['roles', function (results, done) {
 
                     if (!results.user || !results.user.roles) {
                         return done();
@@ -95,19 +107,31 @@ internals.preware = {
                 if (Object.prototype.toString.call(groups) !== '[object Array]') {
                     groups = [groups];
                 }
+                const models  = request.getDb('aqua').getModels();
+                const admin = request.auth.credentials.roles.admin;
 
-                const groupFound = groups.some((group) => {
+                (function next(i){
 
-                    return request.auth.credentials.roles.admin.isMemberOf(group);
-                });
+                    if ( groups.length > i ){
+                        admin.isMemberOf(models,groups[i], (err, isMember) => {
 
-                if (!groupFound) {
-                    const message = `Missing admin group membership to [${groups.join(' or ')}].`;
+                            if (err){
+                                return reply(Boom.badRequest(err));
+                            }
+                            if ( isMember ){
+                                reply();
+                            }
+                            else {
+                                next( i + 1);
+                            }
+                        });
 
-                    return reply(Boom.badRequest(message));
-                }
-
-                reply();
+                    }
+                    else {
+                        const message = `Missing admin group membership to [${groups.join(' or ')}].`;
+                        return reply(Boom.badRequest(message));
+                    }
+                }(0));
             }
         };
     }
@@ -116,7 +140,7 @@ internals.preware = {
 
 exports.register = function (server, options, next) {
 
-    server.dependency('hapi-mongo-models', internals.applyStrategy);
+    server.dependency(['hapi-sequelize','dbconfig'],internals.applyStrategy);
 
     next();
 };

@@ -90,7 +90,7 @@ class UserForm extends React.Component {
                         type="text"
                         className="form-control"
                         disabled={true}
-                        value={this.props.name}
+                        value={this.props.username}
                     />
                     <span className="input-group-btn">
                         <Link

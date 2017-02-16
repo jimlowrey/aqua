@@ -9,7 +9,7 @@ class Actions {
     static getDetails(id) {
 
         ApiActions.get(
-            `/api/users/${id}`,
+            `/api/sqlusers/${id}`,
             undefined,
             Store,
             Constants.GET_DETAILS,
@@ -20,7 +20,7 @@ class Actions {
     static saveDetails(id, data) {
 
         ApiActions.put(
-            `/api/users/${id}`,
+            `/api/sqlusers/${id}`,
             data,
             Store,
             Constants.SAVE_DETAILS,
@@ -50,7 +50,7 @@ class Actions {
         delete data.passwordConfirm;
 
         ApiActions.put(
-            `/api/users/${id}/password`,
+            `/api/sqlusers/${id}/password`,
             data,
             Store,
             Constants.SAVE_PASSWORD,
@@ -68,7 +68,7 @@ class Actions {
     static delete(id, history) {
 
         ApiActions.delete(
-            `/api/users/${id}`,
+            `/api/sqlusers/${id}`,
             undefined,
             Store,
             Constants.DELETE,

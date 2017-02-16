@@ -44,7 +44,7 @@ class DetailsForm extends React.Component {
         event.preventDefault();
         event.stopPropagation();
 
-        const id = this.props._id;
+        const id = this.props.id;
         const data = {
             name: this.state.name
         };

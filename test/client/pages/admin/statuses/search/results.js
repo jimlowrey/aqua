@@ -17,11 +17,11 @@ lab.experiment('Admin Statuses Search Results', () => {
 
         const props = {
             data: [{
-                _id: 'account-happy',
+                id: 'account-happy',
                 pivot: 'Account',
                 name: 'Happy'
             }, {
-                _id: 'account-sad',
+                id: 'account-sad',
                 pivot: 'Account',
                 name: 'Sad'
             }]

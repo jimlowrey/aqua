@@ -7,6 +7,7 @@ const LinkState = require('../../../../helpers/link-state');
 const PropTypes = require('prop-types');
 const React = require('react');
 const Spinner = require('../../../../components/form/spinner.jsx');
+const NodeUUId = require('node-uuid');
 
 
 const propTypes = {
@@ -25,25 +26,38 @@ class PermissionsForm extends React.Component {
 
         this.els = {};
         this.state = {
-            permissions: props.permissions,
+            permissionEntries: props.permissionEntries,
             newPermission: ''
         };
     }
 
     handleNewPermission() {
 
-        const newPermission = this.els.newPermission.value.trim();
+        const selectedPermission = this.els.newPermission.options[this.els.newPermission.selectedIndex];
 
-        if (!newPermission) {
+        if (!selectedPermission.value) {
             return;
         }
 
-        const updatedPermissions = this.state.permissions;
+        const value = selectedPermission.value;
+        const updatedPermissionEntries = this.state.permissionEntries;
+        const permission = this.props.options.find(( p ) => {
 
-        updatedPermissions[newPermission] = true;
+            if (p.id === value ){
+                return true;
+            }
+        });
+        const permissionEntry = {
+            id : NodeUUId.v1(),
+            admin_id : this.props.adminId,
+            active: true,
+            permission_id : permission.id,
+            Permission: permission
+        };
+        updatedPermissions.push(permissionEntry);
 
         this.setState({
-            permissions: updatedPermissions,
+            permissionEntries: updatedPermissionEntries,
             newPermission: ''
         });
     }
@@ -58,25 +72,37 @@ class PermissionsForm extends React.Component {
         }
     }
 
-    handleTogglePermission(key) {
+    handleTogglePermission(id) {
 
-        const updatedPermissions = this.state.permissions;
+        const updatedPermissionEntries = this.state.permissionEntries;
 
-        updatedPermissions[key] = !updatedPermissions[key];
+        const permissionEntry = updatedPermissionEntries.find( (permission) => {
+
+            if ( permission.id === id ){
+                return true;
+            }
+        });
+
+        permissionEntry.active = !permissionEntry.active;
 
         this.setState({
-            permissions: updatedPermissions
+            permissionEntries: updatedPermissionEntries
         });
     }
 
-    handleDeletePermission(key) {
+    handleDeletePermission(id) {
 
-        const updatedPermissions = this.state.permissions;
+        const updatedPermissionEntries = this.state.permissionEntries;
 
-        delete updatedPermissions[key];
+        for ( let i = updatedPermissionEntries.length - 1; i >= 0; --i){
+            if ( updatedPermissionEntries[i].id === id){
+                updatedPermissionEntries.splice(i,1);
+                break;
+            }
+        };
 
         this.setState({
-            permissions: updatedPermissions
+            permissionEntries: updatedPermissionEntries
         });
     }
 
@@ -87,7 +113,7 @@ class PermissionsForm extends React.Component {
 
         const id = this.props.adminId;
         const data = {
-            permissions: this.state.permissions
+            permissionEntries: this.state.permissionEntries
         };
 
         Actions.savePermissions(id, data);
@@ -114,32 +140,32 @@ class PermissionsForm extends React.Component {
             />);
         }
 
-        const permissions = this.state.permissions;
-        const permissionKeys = Object.keys(permissions).sort((a, b) => {
+        const permissionEntries = this.state.permissionEntries;
+        permissionEntries.sort((a, b) => {
 
-            return a.toLowerCase().localeCompare(b.toLowerCase());
+            return a.Permission.name.toLowerCase().localeCompare(b.Permission.name.toLowerCase());
         });
-        let permissionsUi = permissionKeys.map((key) => {
+        let permissionsUi = permissionEntries.map((permissionEntry) => {
 
-            const deleteHandler = this.handleDeletePermission.bind(this, key);
-            const toggleHandler = this.handleTogglePermission.bind(this, key);
+            const deleteHandler = this.handleDeletePermission.bind(this, permissionEntry.id);
+            const toggleHandler = this.handleTogglePermission.bind(this, permissionEntry.id);
             let toggleIcon;
 
-            if (permissions[key]) {
+            if (permissionEntry.active) {
                 toggleIcon = <i className="fa fa-toggle-on"></i>;
             }
             else {
                 toggleIcon = <i className="fa fa-toggle-off"></i>;
             }
-
+            const id = permissionEntry.id;
             return (
-                <div key={key} className="input-group">
+                <div key={id} className="input-group">
                     <input
                         type="text"
                         name="newPermission"
                         className="form-control"
                         disabled={true}
-                        value={key}
+                        value={permissionEntry.Permission.name}
                     />
                     <span className="input-group-btn">
                         <button
@@ -161,33 +187,51 @@ class PermissionsForm extends React.Component {
             );
         });
 
-        if (permissionKeys.length === 0) {
+        if (permissionEntries.length === 0) {
             permissionsUi = <div>
                 <span className="label label-default">none</span>
             </div>;
         }
+
+        const currentPermissionEntryIds = permissionEntries.map((permissionEntry) => {
+
+            return permissionEntry.Permission.id;
+        });
+        const permissionOptions = this.props.options.map((permission) => {
+
+            return (
+                <option
+                    key={permission.id}
+                    value={permission.id}
+                    disabled ={currentPermissionEntryIds.includes(permission.id)}>
+                    {permission.name}
+                </option>
+            );
+        });
 
         const formElements = <fieldset>
             <legend>Permissions</legend>
             {alerts}
             <ControlGroup label="Add permission" hideHelp={true}>
                 <div className="input-group">
-                    <input
+                    <select
                         ref={(c) => (this.els.newPermission = c)}
-                        type="text"
-                        name="newPermission"
+                        name ="newPermission"
                         className="form-control"
-                        placeholder=""
-                        onKeyDown={this.onEnterNewPermission.bind(this)}
                         value={this.state.newPermission}
                         onChange={LinkState.bind(this)}
-                    />
+                        disabled={this.props.loading}>
+
+                        <option value="">--- select ---</option>
+                        {permissionOptions}
+                    </select>
                     <span className="input-group-btn">
                         <button
                             ref={(c) => (this.els.newPermissionButton = c)}
                             type="button"
                             className="btn btn-default"
-                            onClick={this.handleNewPermission.bind(this)}>
+                            onClick={this.handleNewPermission.bind(this)}
+                            disabled={this.props.loading}>
 
                             Add
                         </button>

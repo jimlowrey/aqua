@@ -14,13 +14,24 @@ const Vision = require('vision');
 
 
 const lab = exports.lab = Lab.script();
+const HapiModelsPlugin = {
+    register: require('hapi-sequelize'),
+    options: {
+        sequelize : require('../../misc/db'),
+        //todo not like dbsetup.js cause models are already registered in test/misc/db.js
+        sync: true
+    }
+};
+/*
 const ModelsPlugin = {
     register: require('hapi-mongo-models'),
     options: Manifest.get('/registrations').filter((reg) => {
+        console.log('regs is ', reg);
 
         return reg.plugin.register === 'hapi-mongo-models';
     })[0].plugin.options
 };
+*/
 let request;
 let server;
 
