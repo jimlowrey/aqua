@@ -94,15 +94,13 @@ internals.applyRoutes = function (server, next) {
         handler: function (request, reply) {
 
             const User = request.getDb('aqua').getModel('User');
-            User.findOne(
+            User.findById(request.params.id,
                 {
-                    where : { id:request.params.id },
-                    raw: true,
+                    raw: true,//todo raw? also put password hash stuff in model def
                     attributes : {
                         exclude: 'password_hash'
                     }
                 }
-
             ).then((user) => {
 
                 if (!user){
@@ -134,9 +132,8 @@ internals.applyRoutes = function (server, next) {
 
             const User = request.getDb('aqua').getModel('User');
             //don't I have the user already?
-            User.find(
+            User.findById(id,
                 {
-                    where : { id },
                     raw: true,
                     attributes : {
                         exclude: 'password_hash'
@@ -144,7 +141,7 @@ internals.applyRoutes = function (server, next) {
                 }
 
             ).then((user) => {
-                //console.log(data);
+
                 if (!user){
                     return reply(Boom.notFound('User not found.'));
                 }
@@ -365,7 +362,7 @@ internals.applyRoutes = function (server, next) {
 
                         const conditions = {
                             username: request.payload.username,
-                            _id: { $ne: request.auth.credentials.user._id }
+                            id: { $ne: request.auth.credentials.user.id }
                         };
                         const User = request.getDb('aqua').getModel('User');
                         User.findOne(
@@ -388,9 +385,10 @@ internals.applyRoutes = function (server, next) {
                     assign: 'emailCheck',
                     method: function (request, reply) {
 
+                        const User = request.getDb('aqua').getModel('User');
                         const conditions = {
                             email: request.payload.email,
-                            _id: { $ne: request.auth.credentials.user._id }
+                            id: { $ne: request.auth.credentials.user.id }
                         };
                         User.findOne(
                             {
@@ -413,7 +411,8 @@ internals.applyRoutes = function (server, next) {
         },
         handler: function (request, reply) {
 
-            const id = request.auth.credentials.user._id.toString();
+            const User = request.getDb('aqua').getModel('User');
+            const id = request.auth.credentials.user.id.toString();
             User.update(
                 {
                     isActive: request.payload.isActive,
@@ -460,8 +459,8 @@ internals.applyRoutes = function (server, next) {
         },
         handler: function (request, reply) {
 
-            const SqlUser = request.getDb('aqua').getModel('User');
-            SqlUser.update(
+            const User = request.getDb('aqua').getModel('User');
+            User.update(
                 {
                     password: request.payload.password
                 },
@@ -471,12 +470,12 @@ internals.applyRoutes = function (server, next) {
                 }
                 ).then((result) => {
 
-                    if (result[0] !== 1) {
+                    if (result === 0) {
                         return reply(Boom.notFound('User not found.'));
                     }
 
                     //todo should anything be passed back?
-                    reply({});
+                    reply(result);
 
                 }, (err) => {
 
@@ -515,11 +514,11 @@ internals.applyRoutes = function (server, next) {
                 }
                 ).then((result) => {
 
-                    if (result[0] !== 1) {
+                    if (result === 0) {
                         return reply(Boom.notFound('User not found.'));
                     }
 
-                    reply({});
+                    reply(result);
 
                 }, (err) => {
 
@@ -579,5 +578,5 @@ exports.register = function (server, options, next) {
 
 
 exports.register.attributes = {
-    name: 'sqlusers'
+    name: 'users'
 };

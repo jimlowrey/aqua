@@ -23,7 +23,6 @@ internals.applyStrategy = function (server, next) {
             Async.auto({
                 session: function (done) {
 
-                    //const id = data.session._id;
                     const id = data.session.id;
                     const key = data.session.key;
                     if ( id.indexOf('-') < 0){
@@ -36,7 +35,6 @@ internals.applyStrategy = function (server, next) {
                     if (!results.session) {
                         return done();
                     }
-
                     User.findById(results.session.userId).then(
                         (user) => {
 
@@ -61,7 +59,6 @@ internals.applyStrategy = function (server, next) {
                     if (!results.user || !results.user.roles) {
                         return done();
                     }
-
                     done(null, Object.keys(results.user.roles));
                 }]
             }, (err, results) => {
