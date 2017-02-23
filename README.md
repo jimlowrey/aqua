@@ -1,20 +1,26 @@
-# No longer maintained
+# Aqua SQL
 
-Boilerplates can be a huge time sink to maintain and I've decieded to archive
-this project.
+A website and user system starter based on the fabulous [Aqua](https://jedireza.github.io/aqua/).
 
-I started the work for upgrading to hapi v17 and using async/await instead of
-callbacks, that work can be found in the `hapi-17-async-await` branch.
+The code has been modified to persist data to an SQL datasource via [Sequelize](http://docs.sequelizejs.com/)
 
-Thanks for your interest in my projects.
+This is work in progress intended to help me learn Node, React, Sequelize, ES6 and the ecosystems that go 
+along with them. It is also my best interpretation of what the document schema from the original
+[Aqua](https://jedireza.github.io/aqua/) would look like if it were converted to SQL.
 
-- - - - - - - - - -
+There will be mistakes.  There will be Promises mixed with callbacks.  There will be common
+Node conventions that I missed.
 
-# Aqua
+As they say, "it works on my machine".  Now I want to make it work on yours.
 
-A website and user system starter.
+All feedback is welcome.
 
-[![Build Status](https://travis-ci.org/jedireza/aqua.svg?branch=master)](https://travis-ci.org/jedireza/aqua)
+Finally a huge thank you to [Reza Akhava](https://twitter.com/jedireza) for  [Aqua](https://jedireza.github.io/aqua/).
+
+
+[![Build Status](https://travis-ci.org/jimlowrey/aqua-sql.svg?branch=master)](https://travis-ci.org/jimlowrey/aqua-sql)
+[![Dependency Status](https://david-dm.org/jimlowrey/aqua-sql.svg?style=flat)](https://david-dm.org/jimlowrey/aqua-sql)
+[![devDependency Status](https://david-dm.org/jimlowrey/aqua-sql/dev-status.svg?style=flat)](https://david-dm.org/jimlowrey/aqua-sql#info=devDependencies)
 
 
 ## Features
@@ -44,7 +50,7 @@ A website and user system starter.
 ## Technology
 
 Server side, Aqua is built with the [hapi](https://hapijs.com/) framework.
-We're using [MongoDB](http://www.mongodb.org/) as a data store.
+We're using [Postgres](https://www.postgresql.org/) as a data store.
 
 The front-end is built with [React](https://github.com/facebook/react). We use
 [Redux](https://github.com/reactjs/redux) as our state container. Client side
@@ -63,12 +69,53 @@ If you don't use React and/or would rather bring your own front-end, checkout
 [Frame](https://github.com/jedireza/frame). It's just the HTTP API parts of Aqua.
 
 
+## Live demo coming soon.  For now here is the original
+
+| url                                                              | username | password |
+|:---------------------------------------------------------------- |:-------- |:-------- |
+| [https://getaqua.herokuapp.com/](https://getaqua.herokuapp.com/) | root     | root     |
+
+
+## Requirements
+
+You need [Node.js](http://nodejs.org/download/) installed and you'll need
+[Postgres](https://www.postgresql.org/) installed and running.
+
+We use [`bcrypt`](https://github.com/ncb000gt/node.bcrypt.js) for hashing
+secrets. If you have issues during installation related to `bcrypt` then [refer
+to this wiki
+page](https://github.com/jedireza/aqua/wiki/bcrypt-Installation-Trouble).
+
+
 ## Installation
 
 ```bash
-$ git clone git@github.com:jedireza/aqua.git
-$ cd aqua
+$ git clone git@github.com:jimlowrey/aqua-sql.git
+$ cd aqua-sql
 $ npm install
+```
+
+```sql
+CREATE ROLE aqua LOGIN
+  NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION CONNECTION LIMIT 100;
+CREATE ROLE aqua_test LOGIN
+  NOSUPERUSER INHERIT NOCREATEDB NOCREATEROLE NOREPLICATION CONNECTION LIMIT 100;
+
+CREATE DATABASE aqua
+  WITH OWNER = aqua
+       ENCODING = 'UTF8'
+       TABLESPACE = pg_default
+       LC_COLLATE = 'C'
+       LC_CTYPE = 'C'
+       CONNECTION LIMIT = -1;
+
+CREATE DATABASE aqua_test
+  WITH OWNER = aqua_test
+       ENCODING = 'UTF8'
+       TABLESPACE = pg_default
+       LC_COLLATE = 'C'
+       LC_CTYPE = 'C'
+       CONNECTION LIMIT = -1;
 ```
 
 
@@ -89,8 +136,8 @@ to your repository.__
 
 ## First time setup
 
-__WARNING__: This will clear all data in the following MongoDB collections if
-they exist: `accounts`, `adminGroups`, `admins`, `authAttempts`, `sessions`,
+__WARNING__: This will clear all data in the following SQL Tables if
+they exist: `accounts`, `admin_groups`, `admins`, `auth_attempts`, `sessions`,
 `statuses`, and `users`.
 
 ```bash
@@ -99,9 +146,9 @@ $ npm run first-time-setup
 # > aqua@0.0.0 first-time-setup /home/jedireza/projects/aqua
 # > node first-time-setup.js
 
-# MongoDB URL: (mongodb://localhost:27017/aqua)
 # Root user email: jedireza@gmail.com
 # Root user password:
+# ...
 # Setup complete.
 ```
 
@@ -169,6 +216,9 @@ want to submit an issue before creating a large pull request.
 [Lab](https://github.com/hapijs/lab) is part of the hapi ecosystem and what we
 use to write all of our tests.
 
+Tests have been adapted from the original tests to suit Sequelize and Hapi-Sequelize.
+Some of the originals no longer apply.  Some more need to be added.
+
 ```bash
 $ npm test
 
@@ -197,7 +247,7 @@ $ npm test
 # 865 tests complete
 # Test duration: 6382 ms
 # No global variable leaks detected
-# Coverage: 100.00%
+# Coverage: 96.47%
 # Linting results: No issues
 ```
 
