@@ -8,15 +8,16 @@ const Modal = require('../../../../components/modal.jsx');
 const React = require('react');
 const Spinner = require('../../../../components/form/spinner.jsx');
 const TextControl = require('../../../../components/form/text-control.jsx');
+const PropTypes = require('prop-types');
 
 
 const propTypes = {
-    error: React.PropTypes.string,
-    name: React.PropTypes.string,
-    hasError: React.PropTypes.object,
-    help: React.PropTypes.object,
-    loading: React.PropTypes.bool,
-    show: React.PropTypes.bool
+    error: PropTypes.string,
+    name: PropTypes.string,
+    hasError: PropTypes.object,
+    help: PropTypes.object,
+    loading: PropTypes.bool,
+    show: PropTypes.bool
 };
 
 

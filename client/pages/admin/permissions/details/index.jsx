@@ -9,7 +9,7 @@ const Store = require('./store');
 
 const Link = ReactRouter.Link;
 const propTypes = {
-    params: React.PropTypes.object
+    params: PropTypes.object
 };
 
 

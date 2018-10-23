@@ -8,8 +8,12 @@ Composer((err, server) => {
         throw err;
     }
 
-    server.start(() => {
+    server.start((err) => {
 
+        if ( err ) {
+            console.log('error', err);
+            return;
+        }
         console.log('Started the plot device on port ' + server.info.port);
     });
 });

@@ -3,13 +3,14 @@ const FilterFormHoc = require('../../../../components/admin/filter-form-hoc.jsx'
 const React = require('react');
 const SelectControl = require('../../../../components/form/select-control.jsx');
 const TextControl = require('../../../../components/form/text-control.jsx');
+const PropTypes = require('prop-types');
 
 
 const propTypes = {
-    linkInputState: React.PropTypes.func,
-    linkSelectState: React.PropTypes.func,
-    loading: React.PropTypes.bool,
-    state: React.PropTypes.object
+    linkInputState: PropTypes.func,
+    linkSelectState: PropTypes.func,
+    loading: PropTypes.bool,
+    state: PropTypes.object
 };
 const defaultValues = {
     name: '',

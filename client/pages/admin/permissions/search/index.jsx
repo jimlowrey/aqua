@@ -6,10 +6,11 @@ const Paging = require('../../../../components/paging.jsx');
 const React = require('react');
 const Results = require('./results.jsx');
 const Store = require('./store');
+const PropTypes = require('prop-types');
 
 
 const propTypes = {
-    location: React.PropTypes.object
+    location: PropTypes.object
 };
 
 

@@ -11,12 +11,12 @@ const UUId = require('uuid');
 
 
 const propTypes = {
-    error: React.PropTypes.string,
-    loading: React.PropTypes.bool,
-    showSaveSuccess: React.PropTypes.bool,
-    options: React.PropTypes.array,
-    adminGroupId: React.PropTypes.string,
-    permissionEntries: React.PropTypes.array
+    error: PropTypes.string,
+    loading: PropTypes.bool,
+    showSaveSuccess: PropTypes.bool,
+    options: PropTypes.array,
+    adminGroupId: PropTypes.string,
+    permissionEntries: PropTypes.array
 };
 
 

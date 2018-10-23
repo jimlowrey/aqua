@@ -7,17 +7,18 @@ const LinkState = require('../../../../helpers/link-state');
 const React = require('react');
 const Spinner = require('../../../../components/form/spinner.jsx');
 const TextControl = require('../../../../components/form/text-control.jsx');
+const PropTypes = require('prop-types');
 
 
 const propTypes = {
-    id: React.PropTypes.string,
-    error: React.PropTypes.string,
-    name: React.PropTypes.string,
-    hasError: React.PropTypes.object,
-    help: React.PropTypes.object,
-    loading: React.PropTypes.bool,
-    name: React.PropTypes.string,
-    showSaveSuccess: React.PropTypes.bool
+    id: PropTypes.string,
+    error: PropTypes.string,
+    name: PropTypes.string,
+    hasError: PropTypes.object,
+    help: PropTypes.object,
+    loading: PropTypes.bool,
+    name: PropTypes.string,
+    showSaveSuccess: PropTypes.bool
 };
 
 

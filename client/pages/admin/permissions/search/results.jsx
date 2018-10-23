@@ -1,11 +1,12 @@
 'use strict';
 const React = require('react');
 const ReactRouter = require('react-router');
+const PropTypes = require('prop-types');
 
 
 const Link = ReactRouter.Link;
 const propTypes = {
-    data: React.PropTypes.array
+    data: PropTypes.array
 };
 
 
