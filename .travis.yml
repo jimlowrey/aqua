@@ -12,7 +12,7 @@ before_script:
 env:
   - NODE_ENV=test CXX=g++-4.8
 before_install:
-  - sudo apt-get install unicode-data
+  - sudo apt-get update
 addons:
   apt:
     sources:

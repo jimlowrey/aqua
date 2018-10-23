@@ -1,12 +1,21 @@
 'use strict';
-const App = require('../../../../client/pages/admin/index.jsx');
 const Code = require('code');
 const CreateMemoryHistory = require('history/lib/createMemoryHistory').default;
 const Lab = require('lab');
+const Proxyquire = require('proxyquire');
 const ReactDOM = require('react-dom');
 
 
 const lab = exports.lab = Lab.script();
+const TestLocation = CreateMemoryHistory();
+const stub = {
+    ReactRouter: {
+        HistoryLocation: TestLocation
+    }
+};
+const App = Proxyquire('../../../../client/pages/login/index.jsx', {
+    'react-router': stub.ReactRouter
+});
 let mountNode;
 
 
@@ -30,7 +39,7 @@ lab.after((done) => {
 });
 
 
-lab.experiment('Admin App', () => {
+lab.experiment('Login App', () => {
 
     lab.test('it renders', (done) => {
 

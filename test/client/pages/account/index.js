@@ -1,6 +1,7 @@
 'use strict';
 const App = require('../../../../client/pages/account/index.jsx');
 const Code = require('code');
+const CreateMemoryHistory = require('history/lib/createMemoryHistory').default;
 const Lab = require('lab');
 const ReactDOM = require('react-dom');
 

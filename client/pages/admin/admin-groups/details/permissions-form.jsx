@@ -7,15 +7,16 @@ const LinkState = require('../../../../helpers/link-state');
 const PropTypes = require('prop-types');
 const React = require('react');
 const Spinner = require('../../../../components/form/spinner.jsx');
-const NodeUUId = require('node-uuid');
+const UUId = require('uuid');
 
 
 const propTypes = {
-    adminGroupId: PropTypes.string,
-    error: PropTypes.string,
-    loading: PropTypes.bool,
-    permissions: PropTypes.object,
-    showSaveSuccess: PropTypes.bool
+    error: React.PropTypes.string,
+    loading: React.PropTypes.bool,
+    showSaveSuccess: React.PropTypes.bool,
+    options: React.PropTypes.array,
+    adminGroupId: React.PropTypes.string,
+    permissionEntries: React.PropTypes.array
 };
 
 
@@ -48,7 +49,7 @@ class PermissionsForm extends React.Component {
             }
         });
         const permissionEntry = {
-            id : NodeUUId.v1(),
+            id : UUId.v1(),
             admin_group_id : this.props.adminGroupId,
             active: true,
             permission_id : permission.id,
