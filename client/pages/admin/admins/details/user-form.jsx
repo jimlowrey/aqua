@@ -14,6 +14,7 @@ const TextControl = require('../../../../components/form/text-control.jsx');
 
 const Link = ReactRouter.Link;
 const propTypes = {
+    username: PropTypes.string,
     adminId: PropTypes.string,
     error: PropTypes.string,
     hasError: PropTypes.object,

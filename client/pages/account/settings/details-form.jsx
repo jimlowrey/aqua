@@ -16,11 +16,9 @@ const propTypes = {
     help: PropTypes.object,
     hydrated: PropTypes.bool,
     loading: PropTypes.bool,
-    name: PropTypes.shape({
-        first: PropTypes.string,
-        middle: PropTypes.string,
-        last: PropTypes.string
-    }),
+    first: PropTypes.string,
+    middle: PropTypes.string,
+    last: PropTypes.string,
     showSaveSuccess: PropTypes.bool
 };
 

@@ -93,11 +93,11 @@ module.exports = (callback) => {
                     last: 'Admin'
                 }).then((admin) => {
 
-                    done(null, admin);
-                }, (err) => {
+                done(null, admin);
+            }, (err) => {
 
-                    done(err);
-                });
+                done(err);
+            });
 
         }],
         createNotRootAdmin: ['createAdmin', function (iresults, done){
@@ -110,11 +110,11 @@ module.exports = (callback) => {
                     last: 'Admin'
                 }).then((admin) => {
 
-                    done(null, admin);
-                }, (err) => {
+                done(null, admin);
+            }, (err) => {
 
-                    done(err);
-                });
+                done(err);
+            });
 
         }],
         createAdminGroup: ['clean', function (iresults, done){
@@ -124,11 +124,11 @@ module.exports = (callback) => {
                     name: 'Root'
                 }).then((adminGroup) => {
 
-                    done(null, adminGroup);
-                }, (err) => {
+                done(null, adminGroup);
+            }, (err) => {
 
-                    done(err);
-                });
+                done(err);
+            });
         }],
         createUser : ['clean',function (iresults, done){
 
@@ -171,8 +171,8 @@ module.exports = (callback) => {
                     done(null);
                 }, (err) => {
 
-                done(err);
-            }
+                    done(err);
+                }
             );
         }],
         linkNotRootAdmin : ['createNotRootAdminUser', 'createNotRootAdmin', function (iresults, done){
@@ -184,8 +184,8 @@ module.exports = (callback) => {
                     done(null);
                 }, (err) => {
 
-                done(err);
-            }
+                    done(err);
+                }
             );
         }],
         linkAdmin : ['createAdmin', 'createAdminGroup', function (iresults, done){
@@ -197,8 +197,8 @@ module.exports = (callback) => {
                     done(null);
                 }, (err) => {
 
-                done(err);
-            }
+                    done(err);
+                }
             );
         }],
         createAccount: ['clean', function (iresults, done){
@@ -211,11 +211,11 @@ module.exports = (callback) => {
                     last: 'Account'
                 }).then((admin) => {
 
-                    done(null, admin);
-                }, (err) => {
+                done(null, admin);
+            }, (err) => {
 
-                    done(err);
-                });
+                done(err);
+            });
 
         }],
         createAccountUser : ['clean',function (iresults, done){
@@ -243,8 +243,8 @@ module.exports = (callback) => {
                     done(null);
                 }, (err) => {
 
-                done(err);
-            });
+                    done(err);
+                });
         }],
         createNoRolesUser : ['linkAccountAndUser',function (iresults, done){
 
@@ -269,11 +269,11 @@ module.exports = (callback) => {
                     name: 'OtherRoot'
                 }).then((adminGroup) => {
 
-                    done(null, adminGroup);
-                }, (err) => {
+                done(null, adminGroup);
+            }, (err) => {
 
-                    done(err);
-                });
+                done(err);
+            });
         }]
     }, (err, dbResults) => {
 

@@ -160,9 +160,9 @@ internals.applyRoutes = function (server, next) {
                         if (!user) {
                             return reply({ success: true }).takeover();
                         }
-                        else {
-                            reply(user);
-                        }
+
+                        reply(user);
+
                     }, (err) => {
 
                         reply(err);
@@ -248,16 +248,16 @@ internals.applyRoutes = function (server, next) {
                             where: conditions
                         }).then((user) => {
 
-                            if (!user) {
-                                return reply(Boom.badRequest('Invalid email or key.'));
-                            }
-
-                            reply(user);
-                        },
-                        (err) => {
-
-                            reply(err);
+                        if (!user) {
+                            return reply(Boom.badRequest('Invalid email or key.'));
                         }
+
+                        reply(user);
+                    },
+                    (err) => {
+
+                        reply(err);
+                    }
                     );
                 }
             }]

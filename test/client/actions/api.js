@@ -80,7 +80,7 @@ lab.experiment('Api Actions', () => {
         Actions.makeRequest({}, stub.Store, typeReq, typeRes);
     });
 
-/*
+    /*
     lab.test('it makes a GET request with the get function', (done) => {
 
         const makeRequest = Actions.makeRequest;

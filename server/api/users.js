@@ -1,6 +1,5 @@
 'use strict';
 const AuthPlugin = require('../auth');
-const Async = require('async');
 const Boom = require('boom');
 const Joi = require('joi');
 const Config = require('../../config');
@@ -34,7 +33,7 @@ internals.applyRoutes = function (server, next) {
             },
             pre: [
                 AuthPlugin.preware.ensureAdminGroup('Root')//capitalized for the name.
-                                                           //This is a specific group perhaps is should be addressed by Id?
+                //This is a specific group perhaps is should be addressed by Id?
             ]
         },
         handler: function (request, reply) {
@@ -70,14 +69,14 @@ internals.applyRoutes = function (server, next) {
             }
 
             User.pagedFind(query, request.query.page, request.query.limit, order, isAdmin, isAccount,
-                 (err, data) => {
+                (err, data) => {
 
-                     if ( err ){
-                         return reply(err);
-                     }
-                     reply(data);
+                    if ( err ){
+                        return reply(err);
+                    }
+                    reply(data);
 
-                 });
+                });
         }
     });
 
@@ -302,18 +301,18 @@ internals.applyRoutes = function (server, next) {
                 {
                     where : { id : request.params.id }
                 }
-                ).then((user) => {
+            ).then((user) => {
 
-                    if (!user) {
-                        return reply(Boom.notFound('Document not found.'));
-                    }
+                if (!user) {
+                    return reply(Boom.notFound('Document not found.'));
+                }
 
-                    reply(user);
+                reply(user);
 
-                }, (err) => {
+            }, (err) => {
 
-                    return reply(err);
-                });
+                return reply(err);
+            });
         }
     });
 
@@ -396,18 +395,18 @@ internals.applyRoutes = function (server, next) {
                 {
                     where : { id }
                 }
-                ).then((user) => {
+            ).then((user) => {
 
-                    if (!user) {
-                        return reply(Boom.notFound('Document not found.'));
-                    }
+                if (!user) {
+                    return reply(Boom.notFound('Document not found.'));
+                }
 
-                    reply(user);
+                reply(user);
 
-                }, (err) => {
+            }, (err) => {
 
-                    return reply(err);
-                });
+                return reply(err);
+            });
         }
     });
 
@@ -441,18 +440,18 @@ internals.applyRoutes = function (server, next) {
                     where : { id : request.params.id },
                     individualHooks:true
                 }
-                ).then((result) => {
+            ).then((result) => {
 
-                    if (result === 0) {
-                        return reply(Boom.notFound('User not found.'));
-                    }
+                if (result === 0) {
+                    return reply(Boom.notFound('User not found.'));
+                }
 
-                    reply(result);
+                reply(result);
 
-                }, (err) => {
+            }, (err) => {
 
-                    return reply(err);
-                });
+                return reply(err);
+            });
         }
     });
 
@@ -483,18 +482,18 @@ internals.applyRoutes = function (server, next) {
                     where : { id : request.params.id },
                     individualHooks:true
                 }
-                ).then((result) => {
+            ).then((result) => {
 
-                    if (result === 0) {
-                        return reply(Boom.notFound('User not found.'));
-                    }
+                if (result === 0) {
+                    return reply(Boom.notFound('User not found.'));
+                }
 
-                    reply(result);
+                reply(result);
 
-                }, (err) => {
+            }, (err) => {
 
-                    return reply(err);
-                });
+                return reply(err);
+            });
 
         }
     });

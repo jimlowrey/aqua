@@ -170,16 +170,16 @@ internals.applyRoutes = function (server, next) {
                     }
                 }).then((count) => {
 
-                    if ( count === 0 ) {
-                        return reply(Boom.notFound('Document not found.'));
-                    }
+                if ( count === 0 ) {
+                    return reply(Boom.notFound('Document not found.'));
+                }
 
-                    reply(count);
+                reply(count);
 
-                }, (err) => {
+            }, (err) => {
 
-                    return reply(err);
-                });
+                return reply(err);
+            });
         }
     });
 

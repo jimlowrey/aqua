@@ -12,7 +12,7 @@ const Spinner = require('../../../../components/form/spinner.jsx');
 const propTypes = {
     adminId: PropTypes.string,
     error: PropTypes.string,
-    groups: PropTypes.object,
+    groups: PropTypes.array,
     loading: PropTypes.bool,
     options: PropTypes.array,
     showSaveSuccess: PropTypes.bool

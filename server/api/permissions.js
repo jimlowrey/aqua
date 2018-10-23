@@ -166,16 +166,16 @@ internals.applyRoutes = function (server, next) {
                     }
                 }).then((status) => {
 
-                    if (!status) {
-                        return reply(Boom.notFound('Permission not found.'));
-                    }
+                if (!status) {
+                    return reply(Boom.notFound('Permission not found.'));
+                }
 
-                    reply(status);
+                reply(status);
 
-                }, (err) => {
+            }, (err) => {
 
-                    return reply(err);
-                });
+                return reply(err);
+            });
         }
     });
 

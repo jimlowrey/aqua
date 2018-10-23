@@ -11,12 +11,14 @@ const TextControl = require('../../../../components/form/text-control.jsx');
 
 
 const propTypes = {
-    _id: PropTypes.string,
+    id: PropTypes.string,
     error: PropTypes.string,
     hasError: PropTypes.object,
     help: PropTypes.object,
     loading: PropTypes.bool,
-    name: PropTypes.object,
+    first: PropTypes.string,
+    middle: PropTypes.string,
+    last: PropTypes.string,
     showSaveSuccess: PropTypes.bool
 };
 

@@ -431,7 +431,7 @@ internals.applyRoutes = function (server, next) {
                 }) .then( (result) => {
 
                     return account.reload();//todo figure out why we need to reload here.
-                                            //for some reason the NoteEntry doesn't get appended to NoteEntries
+                    //for some reason the NoteEntry doesn't get appended to NoteEntries
                 }) .then( (result) => {
 
                     reply(result);
@@ -507,10 +507,10 @@ internals.applyRoutes = function (server, next) {
                                 model : User,
                                 attributes: ['id', 'username', 'isActive', 'createdAt']
                             },
-                        {  model: NoteEntry, include: [{ model: User }] },
+                            {  model: NoteEntry, include: [{ model: User }] },
                             { model: StatusEntry, include: [
-                            { model: User },
-                            { model: Status }
+                                { model: User },
+                                { model: Status }
                             ] }]
                     });
             }).then( (account) => {

@@ -100,7 +100,7 @@ lab.experiment('Signup Plugin', () => {
 
         done();
     });
-/*
+    /*
     lab.test('it returns an error when find one fails for username check', (done) => {
 
         User.findOne = function (conditions) {

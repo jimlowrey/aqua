@@ -46,16 +46,16 @@ Async.auto({
             }
         });
         sequelize.authenticate().then(
-             () => {
+            () => {
 
-                 console.log('connection successfull');
-                 done(null, sequelize);
-             },
-             (err) => {
+                console.log('connection successfull');
+                done(null, sequelize);
+            },
+            (err) => {
 
-                 console.log('connection error: ', err);
-                 return done(err);
-             }
+                console.log('connection error: ', err);
+                return done(err);
+            }
         );
     }],
     pgTestHost: ['testPg', (results, done) => {
@@ -100,16 +100,16 @@ Async.auto({
             }
         });
         sequelize.authenticate().then(
-             () => {
+            () => {
 
-                 console.log('connection successfull');
-                 done(null, sequelize);
-             },
-             (err) => {
+                console.log('connection successfull');
+                done(null, sequelize);
+            },
+            (err) => {
 
-                 console.log('connection error: ', err);
-                 return done(err);
-             }
+                console.log('connection error: ', err);
+                return done(err);
+            }
         );
     }],
     rootEmail: ['testTestPg', (results, done) => {
@@ -190,11 +190,11 @@ Async.auto({
                         last: 'Admin'
                     }).then((admin) => {
 
-                        done(null, admin);
-                    }, (err) => {
+                    done(null, admin);
+                }, (err) => {
 
-                        done(err);
-                    });
+                    done(err);
+                });
 
             }],
             createAdminGroup: ['clean', function (iresults, done){
@@ -204,11 +204,11 @@ Async.auto({
                         name: 'Root'
                     }).then((adminGroup) => {
 
-                        done(null, adminGroup);
-                    }, (err) => {
+                    done(null, adminGroup);
+                }, (err) => {
 
-                        done(err);
-                    });
+                    done(err);
+                });
             }],
             createUser : ['clean',function (iresults, done){
 
@@ -235,8 +235,8 @@ Async.auto({
                         done(null);
                     }, (err) => {
 
-                    done(err);
-                }
+                        done(err);
+                    }
                 );
             }],
             linkAdmin : ['createAdmin', 'createAdminGroup', function (iresults, done){
@@ -248,8 +248,8 @@ Async.auto({
                         done(null);
                     }, (err) => {
 
-                    done(err);
-                }
+                        done(err);
+                    }
                 );
             }]
         }, (err, dbResults) => {

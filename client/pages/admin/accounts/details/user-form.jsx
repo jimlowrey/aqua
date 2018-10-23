@@ -19,6 +19,7 @@ const propTypes = {
     hasError: PropTypes.object,
     help: PropTypes.object,
     id: PropTypes.string,
+    username: PropTypes.string,
     loading: PropTypes.bool,
     name: PropTypes.string,
     showSaveSuccess: PropTypes.bool

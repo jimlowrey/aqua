@@ -13,7 +13,8 @@ const propTypes = {
     adminId: PropTypes.string,
     error: PropTypes.string,
     loading: PropTypes.bool,
-    permissions: PropTypes.object,
+    permissionEntries: PropTypes.array,
+    options: PropTypes.array,
     showSaveSuccess: PropTypes.bool
 };
 

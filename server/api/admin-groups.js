@@ -78,7 +78,7 @@ internals.applyRoutes = function (server, next) {
             AdminGroup.findById(request.params.id,
                 {
                     include: [{ model : Admin },
-                               { model: AdminGroupPermissionEntry, include: [{ model: Permission }] }
+                        { model: AdminGroupPermissionEntry, include: [{ model: Permission }] }
                     ]
                 }
             ).then((adminGroup) => {

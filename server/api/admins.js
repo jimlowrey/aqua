@@ -362,14 +362,14 @@ internals.applyRoutes = function (server, next) {
 
                         request.pre.user.getAdmin().then(
 
-                        (account) => {
+                            (account) => {
 
-                            if ( account ){
-                                return reply(Boom.conflict('User is already linked to another account. Unlink first.'));
+                                if ( account ){
+                                    return reply(Boom.conflict('User is already linked to another account. Unlink first.'));
+                                }
+                                reply();
                             }
-                            reply();
-                        }
-                    );
+                        );
                     }
                 }, {
                     assign: 'adminCheck',
@@ -377,14 +377,14 @@ internals.applyRoutes = function (server, next) {
 
                         request.pre.admin.getUser().then(
 
-                        (account) => {
+                            (account) => {
 
-                            if ( account ){
-                                return reply(Boom.conflict('Admin is already linked to another account. Unlink first.'));
+                                if ( account ){
+                                    return reply(Boom.conflict('Admin is already linked to another account. Unlink first.'));
+                                }
+                                reply();
                             }
-                            reply();
-                        }
-                    );
+                        );
                     }
                 }]
         },
@@ -468,7 +468,7 @@ internals.applyRoutes = function (server, next) {
                 reply( { message: 'success' } );
             }, (err) => {
 
-                reply({ success: true });
+                reply(err);
             });
         }
     });
