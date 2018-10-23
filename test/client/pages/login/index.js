@@ -1,6 +1,5 @@
 'use strict';
 const Code = require('code');
-const CreateMemoryHistory = require('history/lib/createMemoryHistory').default;
 const Lab = require('lab');
 const Proxyquire = require('proxyquire');
 const ReactDOM = require('react-dom');
