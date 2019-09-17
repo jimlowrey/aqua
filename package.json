@@ -87,8 +87,9 @@
     "react-dom": "15.x.x",
     "react-router-dom": "4.x.x",
     "require-dir": "0.3.x",
-    "webpack": "3.x.x",
     "sequelize-mock": "^0.7.0",
+    "webpack": "^4.40.2",
+    "webpack-assets-manifest": "^3.1.1",
     "xhr": "2.x.x"
   }
 }
