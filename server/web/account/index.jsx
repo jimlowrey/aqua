@@ -1,5 +1,6 @@
 'use strict';
 const React = require('react');
+const Manifest = require('../../../public/pages/asset-manifest.json');
 
 
 class AccountPage extends React.Component {
@@ -16,8 +17,8 @@ class AccountPage extends React.Component {
                 </head>
                 <body>
                     <div id="app-mount"></div>
-                    <script src="/public/core.min.js"></script>
-                    <script src="/public/pages/account.min.js"></script>
+
+                    {Manifest.entrypoints.account.js.map((i) => <script key={i} src={i}></script>)}
                 </body>
             </html>
         );

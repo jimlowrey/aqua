@@ -1,6 +1,7 @@
 'use strict';
 const PropTypes = require('prop-types');
 const React = require('react');
+const Manifest = require('../../../public/pages/asset-manifest.json');
 
 
 const propTypes = {
@@ -35,8 +36,8 @@ class MainPage extends React.Component {
                             __html: this.props.state
                         }}
                     />
-                    <script src="/public/core.min.js"></script>
-                    <script src="/public/pages/main.min.js"></script>
+
+                    {Manifest.entrypoints.main.js.map((i) => <script key={i} src={i}></script>)}
                 </body>
             </html>
         );
