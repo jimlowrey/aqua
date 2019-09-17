@@ -1,6 +1,6 @@
 'use strict';
 const React = require('react');
-const Manifest = require('../../../public/pages/manifest.json');
+const Manifest = require('../../../public/pages/asset-manifest.json');
 
 
 class AccountPage extends React.Component {

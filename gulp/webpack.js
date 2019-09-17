@@ -18,6 +18,7 @@ Gulp.task('webpack', (callback) => {
             }
         }),
         new WebpackAssetsManifest({
+            output: 'asset-manifest.json',
             publicPath: true,
             entrypoints: true
         })

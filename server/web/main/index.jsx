@@ -1,7 +1,7 @@
 'use strict';
 const PropTypes = require('prop-types');
 const React = require('react');
-const Manifest = require('../../../public/pages/manifest.json');
+const Manifest = require('../../../public/pages/asset-manifest.json');
 
 
 const propTypes = {
